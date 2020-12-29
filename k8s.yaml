@@ -1,0 +1,21 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: ktor-nacos
+  namespace: default
+spec:
+  selector:
+    matchLabels:
+      app: ktor-nacos
+  template:
+    metadata:
+      labels:
+        app: ktor-nacos
+    spec:
+      containers:
+      - image: mimikko/ktor-nacos:<BUILD_TAG>
+        imagePullPolicy: IfNotPresent
+        name: ktor-nacos
+        env:
+        - name: branch
+          value: <BRANCH_NAME>
