@@ -1,21 +1,21 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: ktor-redis
+  name: ktor-jenkins
   namespace: default
 spec:
   selector:
     matchLabels:
-      app: ktor-redis
+      app: ktor-jenkins
   template:
     metadata:
       labels:
-        app: ktor-redis
+        app: ktor-jenkins
     spec:
       containers:
-      - image: mimikko/ktor-redis:<BUILD_TAG>
+      - image: zhanghu0218/ktor-jenkins:<BUILD_TAG>
         imagePullPolicy: IfNotPresent
-        name: ktor-redis
+        name: ktor-jenkins
         env:
         - name: branch
           value: <BRANCH_NAME>
