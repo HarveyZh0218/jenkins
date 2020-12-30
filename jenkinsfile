@@ -36,12 +36,12 @@ node {
         }
     }
     //push docker镜像到Nexus
-    //stage('Push Docker Images to Nexus Registry'){
-      //  sh 'docker login -u user -p password NexusDockerRegistryUrl'
-      //  sh 'docker push NexusDockerRegistryUrl/Imagename}'
-      //  sh 'docker rmi $(docker images --filter=reference="NexusDockerRegistryUrl/ImageName*" -q)'
-      //  sh 'docker logout NexusDockerRegistryUrl'
-    //}
+    // stage('Push Docker Images to Nexus Registry'){
+    //     sh 'docker login -u user -p password http://localhost:8081/repository/docker-private/'
+    //     sh 'docker push http://localhost:8081/repository/docker-private//ktor-jenkins:${build_tag}}'
+    //     sh 'docker rmi $(docker images --filter=reference="http://localhost:8081/repository/docker-private//ktor-jenkins:${build_tag}*" -q)'
+    //     sh 'docker logout http://localhost:8081/repository/docker-private/'
+    // }
     stage('Deploy') {
         echo "5. Deploy Stage"
         // def userInput = input(
