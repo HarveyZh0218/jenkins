@@ -13,9 +13,15 @@ spec:
         app: ktor-jenkins
     spec:
       containers:
-      - image: zhanghu0218/ktor-jenkins:<BUILD_TAG>
+      - name: ktor-jenkins
+        image: zhanghu0218/ktor-jenkins:<BUILD_TAG>
+#         image: harbor.od.com/infra/jenkins:v1.0
+#         image: nexus.mimikko.cn:8482/@project.artifactId@:@project.version@.{{ TAG }}
         imagePullPolicy: IfNotPresent
-        name: ktor-jenkins
+        ports:
+            - name: http-port
+              containerPort: 8080
+              hostPort: 8345
         env:
         - name: branch
           value: <BRANCH_NAME>
