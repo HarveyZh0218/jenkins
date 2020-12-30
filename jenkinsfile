@@ -1,0 +1,70 @@
+//镜像版本号
+def tag = "latest"
+
+node {
+    stage('Clone Code') {
+        echo "1.Clone Stage"
+        //克隆 代码
+        //credentialsId: auth 
+        git branch: 'master', changelog: false, credentialsId: 'github', poll: false, url: 'https://github.com/HarveyZh0218/jenkins.git'
+        script {
+            build_tag = sh(returnStdout: true, script: 'git rev-parse --short HEAD').trim()
+        }
+    }
+    stage('Test') {
+      echo "2.Test Stage"
+    }
+    stage('Build Gradle') {
+        echo "Build Gradle"
+        sh "chmod +x gradlew"
+        sh "./gradlew clean build"
+    }
+    stage('Build Image') {
+        echo "3.Build Docker Image Stage"
+        sh "docker build -t mimikko/ktor-jenkins:${build_tag} ."
+    }
+
+    stage('Push Docker Images to DockerHub') {
+        echo "4.Push Docker Image Stage"
+        //定义镜像名
+        def ImageNmae = "${project_name}:${tag}"
+        //对镜像打标签
+        
+        withCredentials([usernamePassword(credentialsId: 'dockerHub', passwordVariable: 'dockerHubPassword', usernameVariable: 'dockerHubUser')]) {
+            sh "docker login -u ${dockerHubUser} -p ${dockerHubPassword}"
+            sh "docker push zhanghu0218/ktor-jenkins:${build_tag}"
+        }
+    }
+    //push docker镜像到Nexus
+    stage('Push Docker Images to Nexus Registry'){
+        sh 'docker login -u user -p password NexusDockerRegistryUrl'
+        sh 'docker push NexusDockerRegistryUrl/Imagename}'
+        sh 'docker rmi $(docker images --filter=reference="NexusDockerRegistryUrl/ImageName*" -q)'
+        sh 'docker logout NexusDockerRegistryUrl'
+    }
+    stage('Deploy') {
+        echo "5. Deploy Stage"
+        // def userInput = input(
+        //     id: 'userInput',
+        //     message: 'Choose a deploy environment',
+        //     parameters: [
+        //         [
+        //             $class: 'ChoiceParameterDefinition',
+        //             choices: "Dev\nQA\nProd",
+        //             name: 'Env'
+        //         ]
+        //     ]
+        // )
+        // echo "This is a deploy step to ${userInput}"
+        sh "sed -i 's/<BUILD_TAG>/${build_tag}/' k8s.yaml"
+        sh "sed -i 's/<BRANCH_NAME>/${env.BRANCH_NAME}/' k8s.yaml"
+        // if (userInput == "Dev") {
+        //     // deploy dev stuff
+        // } else if (userInput == "QA"){
+        //     // deploy qa stuff
+        // } else {
+        //     // deploy prod stuff
+        // }
+        sh "kubectl apply -f k8s.yaml"
+    }
+}
