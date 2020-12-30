@@ -21,7 +21,6 @@ spec:
         ports:
             - name: http-port
               containerPort: 8080
-              hostPort: 8345
         env:
         - name: branch
           value: <BRANCH_NAME>
