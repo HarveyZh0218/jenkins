@@ -1,0 +1,53 @@
+kind: Deployment
+apiVersion: extensions/v1beta1
+metadata:
+  name: jenkins
+  namespace: infra
+  labels: 
+    name: jenkins
+spec:
+  replicas: 1
+  selector:
+    matchLabels: 
+      name: jenkins
+  template:
+    metadata:
+      labels: 
+        app: jenkins 
+        name: jenkins
+    spec:
+      volumes:
+      - name: data
+        nfs: 
+          server: hdss7-200
+          path: /data/nfs-volume/jenkins_home
+      - name: docker
+        hostPath: 
+          path: /run/docker.sock
+          type: ''
+      containers:
+      - name: jenkins
+        image: harbor.od.com/infra/jenkins:v2.190.3.20200503 
+        imagePullPolicy: IfNotPresent
+        ports:
+        - containerPort: 8080
+          protocol: TCP
+        env:
+        - name: JAVA_OPTS
+          value: -Xmx512m -Xms512m
+        volumeMounts:
+        - name: data
+          mountPath: /var/jenkins_home
+        - name: docker
+          mountPath: /run/docker.sock
+      imagePullSecrets:
+      - name: harbor
+      securityContext: 
+        runAsUser: 0
+  strategy:
+    type: RollingUpdate
+    rollingUpdate: 
+      maxUnavailable: 1
+      maxSurge: 1
+  revisionHistoryLimit: 7
+  progressDeadlineSeconds: 600
