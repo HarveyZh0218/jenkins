@@ -23,11 +23,11 @@ node {
         echo "3.Build Docker Image Stage"
         sh "docker build -t mimikko/ktor-jenkins:${build_tag} ."
     }
-
+    //push docker镜像到DockerHub
     stage('Push Docker Images to DockerHub') {
         echo "4.Push Docker Image Stage"
         //定义镜像名
-        def ImageNmae = "${project_name}:${tag}"
+        //def ImageNmae = "${project_name}:${tag}"
         //对镜像打标签
         
         withCredentials([usernamePassword(credentialsId: 'dockerHub', passwordVariable: 'dockerHubPassword', usernameVariable: 'dockerHubUser')]) {
